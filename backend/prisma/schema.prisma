@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int   @id @default(autoincrement())
+  name     String
+  password String
+  email    String   @unique
+  forms    Form[]   
+}
+
+model Form {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String
+  userId      Int
+  active      Boolean       
+  createdAt   DateTime      @default(now())
+  user        User          @relation(fields: [userId], references: [id])
+  questions   Question[]    // One-to-many relationship with Question
+  responses   FormResponse[] // One-to-many relationship with FormResponse
+}
+
+model Question {
+  id       Int    @id @default(autoincrement())
+  text     String
+  type     questionType  @default(text)  // Enum could be used for specific types like TEXT, MULTIPLE_CHOICE, etc.
+  required Boolean
+  active   Boolean
+  formId   Int
+  form     Form      @relation(fields: [formId], references: [id])
+  options  Option[]  // One-to-many relationship with Option
+  responses Response[] // One-to-many relationship with Response
+}
+
+model Option {
+  id         Int    @id @default(autoincrement())
+  questionId Int
+  formId     Int
+  active     Boolean
+  question   Question  @relation(fields: [questionId], references: [id])
+  responses  ResponseOption[] // One-to-many relationship with ResponseOption
+}
+
+model Response {
+  id            Int         @id @default(autoincrement())
+  questionId    Int
+  responseText  String?
+  formId        Int
+  formResponseId Int
+  question      Question       @relation(fields: [questionId], references: [id])
+  formResponse  FormResponse   @relation(fields: [formResponseId], references: [id])
+  options       ResponseOption[] // One-to-many relationship with ResponseOption
+}
+
+model FormResponse {
+  id         Int    @id @default(autoincrement())
+  formId     Int
+  userId     Int?
+  createdAt  DateTime  @default(now())
+  form       Form      @relation(fields: [formId], references: [id])
+  responses  Response[] // One-to-many relationship with Response
+}
+
+model ResponseOption {
+  id         Int   @id @default(autoincrement())
+  optionId   Int
+  responseId Int
+  option     Option   @relation(fields: [optionId], references: [id])
+  response   Response @relation(fields: [responseId], references: [id])
+}
+
+enum questionType {
+  text
+  radio
+  multiple
+  file
+  date
+  time
+}
