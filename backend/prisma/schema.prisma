@@ -34,6 +34,8 @@ model Form {
   responses   FormResponse[] // One-to-many relationship with FormResponse
 }
 
+
+//implement index in questions
 model Question {
   id       Int    @id @default(autoincrement())
   text     String
@@ -46,6 +48,7 @@ model Question {
   responses Response[] // One-to-many relationship with Response
 }
 
+//implement index in options
 model Option {
   id         Int    @id @default(autoincrement())
   questionId Int

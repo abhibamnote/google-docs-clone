@@ -21,5 +21,7 @@ export const updateQuestionService = async (questionId, data) => {
             ...data
         }
     })
+
+    return question;
 }
 
